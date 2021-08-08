@@ -1,0 +1,11 @@
+{
+  "hostAddress": "localhost",
+  "serverPort": 3005,
+  "mongoUrl": "mongodb://root:IQLPyd3Rfdn2@localhost:27017/demogame_db",
+  "secret": "demogame",
+  "stripeKeys" : {
+    "mode": "test",
+    "secretKey_test" : "sk_test_51IbfccLcRVQ8nmyLI0HpfAYMazLrR1i6fRnYLby7EqlYd9jrlXz10UFbinOs2TOdEu6xThloZJzg26HOCuXtwE9c00VbNHKXyy",
+    "secretKey_live" : "sk_test_51IbfccLcRVQ8nmyLI0HpfAYMazLrR1i6fRnYLby7EqlYd9jrlXz10UFbinOs2TOdEu6xThloZJzg26HOCuXtwE9c00VbNHKXyy"
+  }
+}

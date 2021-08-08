@@ -1,0 +1,7 @@
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+server.bundle.js
+# Dependency directories
+node_modules/
+package-lock.json
+# Optional npm cache directory
+.npmsendgrid.env
