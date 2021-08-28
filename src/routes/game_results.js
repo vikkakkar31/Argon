@@ -1,86 +1,24 @@
 let express = require("express");
 let router = express.Router();
-let api = require("../libs/game_bets/api");
-let gameBetsDb = require("../libs/game_bets/schema");
+let api = require("../libs/game_results/api");
+let gameResultsDb = require("../libs/game_results/schema");
 let validations = require("./validations");
 
-router.post("/createGameBets",
-    // validations.authenticateToken,
+router.post("/createGameResults",
+    validations.authenticateToken,
     function (req, res, next) {
         try {
             var data = req.body;
             if (data && Object.keys(data).length) {
-                api.findOne(
-                    { game_id: data.game_id },
-                    {},
-                    {},
-                    (err, result) => {
-                        if (result) {
-                            let bet, user_bet;
-                            bet = data.bets || [];
-                            user_bet = bet[0].user_bet || [];
-                            let update = result;
-                            if (data.type === 'bets') {
-                                let oldIndex = result.bets.findIndex((el) => el.bet_number === bet[0].bet_number);
-                                let oldBets = result.bets.find((el) => el.bet_number === bet[0].bet_number);
-                                let newAmount = [];
-                                if (oldBets && oldBets.id) {
-                                    newAmount = oldBets.user_bet.find((user) => user.bet_amount != bet[0].user_bet[0].bet_amount);
-                                    let oldUserIndex = oldBets.user_bet.findIndex((el) => el.bet_amount === bet[0].user_bet[0].bet_amount);
-                                    if (oldUserIndex === -1) {
-                                        oldBets.user_bet[0].bet_amount = bet[0].user_bet[0].bet_amount;
-                                        update.bets[oldIndex] = oldBets;
-                                    }
-                                } else {
-                                    update.bets.push(...bet)
-                                }
-                            } else if (data.type === 'inside_bets') {
-                                let oldIndex = result.inside_bets.findIndex((el) => el.bet_number === bet[0].bet_number);
-                                let oldBets = result.inside_bets.find((el) => el.bet_number === bet[0].bet_number);
-                                let newAmount = [];
-                                if (oldBets && oldBets.id) {
-                                    newAmount = oldBets.user_bet.find((user) => user.bet_amount != bet[0].user_bet[0].bet_amount);
-                                    let oldUserIndex = oldBets.user_bet.findIndex((el) => el.bet_amount === bet[0].user_bet[0].bet_amount);
-                                    if (oldUserIndex === -1) {
-                                        oldBets.user_bet[0].bet_amount = bet[0].user_bet[0].bet_amount;
-                                        update.bets[oldIndex] = oldBets;
-                                    }
-                                } else {
-                                    update.inside_bets.push(...bet)
-                                }
-                            } else if (data.type === 'outside_bets') {
-                                let oldIndex = result.outside_bets.findIndex((el) => el.bet_number === bet[0].bet_number);
-                                let oldBets = result.outside_bets.find((el) => el.bet_number === bet[0].bet_number);
-                                let newAmount = [];
-                                if (oldBets && oldBets.id) {
-                                    newAmount = oldBets.user_bet.find((user) => user.bet_amount != bet[0].user_bet[0].bet_amount);
-                                    let oldUserIndex = oldBets.user_bet.findIndex((el) => el.bet_amount === bet[0].user_bet[0].bet_amount);
-                                    if (oldUserIndex === -1) {
-                                        oldBets.user_bet[0].bet_amount = bet[0].user_bet[0].bet_amount;
-                                        update.bets[oldIndex] = oldBets;
-                                    }
-                                } else {
-                                    update.outside_bets.push(...bet)
-                                }
-                            }
-                            api.update({ game_id: data.game_id }, update, {}, (err, response) => {
-                                if (err) {
-                                    res.status(500).send({ error: err });
-                                } else {
-                                    res.status(200).send(response);
-                                }
-                            });
-                        } else {
-                            api.add(data, function (err, response) {
-                                if (err) {
-                                    res.status(500).send({ error: err });
-                                } else {
-                                    res.status(200).send(response);
-                                }
-                            });
-                        }
-                    })
-
+                delete (data._id);
+                console.log(data);
+                api.add(data, function (err, response) {
+                    if (err) {
+                        res.status(500).send({ error: err });
+                    } else {
+                        res.status(200).send(response);
+                    }
+                });
             } else {
                 res.status(422).send({
                     message: "Required fields are missing.",
@@ -93,7 +31,7 @@ router.post("/createGameBets",
     });
 
 router.put(
-    "/updateGameBets/:id",
+    "/updateGameResults/:id",
     validations.autenticateGenuinUserForUpdate,
     validations.authenticateToken,
     function (req, res, next) {
@@ -126,7 +64,7 @@ router.put(
     }
 );
 router.get(
-    "/getGameBets",
+    "/getGameResults",
     function (req, res, next) {
         try {
             var queryString = req;
@@ -155,7 +93,7 @@ router.get(
 );
 
 router.get(
-    "/getGameBets/:id",
+    "/getGameResults/:id",
     validations.authenticateToken,
     function (req, res, next) {
         try {
@@ -196,7 +134,7 @@ router.post(
             projection.password = 0;
             let query = {};
             if (queryString.body && queryString.body.user_id) {
-                query = { ...query, user_id: queryString.body.user_id, game_id: queryString.body.game_id };
+                query = { ...query, winner_user_id: queryString.body.user_id, game_id: queryString.body.game_id };
             }
             api.findAll(
                 query,
@@ -219,7 +157,7 @@ router.post(
     }
 );
 
-router.delete("/removeGameBets", validations.authenticateToken,
+router.delete("/removeGameResults", validations.authenticateToken,
     function (req, res, next) {
         try {
             var data = req.body;
