@@ -69,35 +69,21 @@ router.get(
             var queryString = req;
             var projection = queryString.projection || {};
             projection.password = 0;
-
-            //let sortOrder = req.query.sortOrder;
-            // let mySort = { ['plan_billing_period']: 'asc' };
-            // if(req.query.sortField) {
-            //     mySort = { [req.query.sortField]: sortOrder };
-            // }
-
-            let query = {};
-            // if (queryString.query && queryString.query.plan_status) {
-            //     query = { ...query, plan_status: queryString.query.plan_status };
-            // }
-            var queryString = req.query;
-            walletsDb.count(query, (err, result) => {
-                walletsDb.find(
-                    query,
-                    projection,
-                    queryString.options || {},
-                    function (err, response) {
-                        if (err) {
-                            res.status(500).send({
-                                error: err,
-                            });
-                        } else {
-                            res.status(200).send({ totalCount: result, response });
-                        }
+            var query = queryString.query;
+            api.findAll(
+                query,
+                projection,
+                queryString.options || {},
+                function (err, response) {
+                    if (err) {
+                        res.status(500).send({
+                            error: err,
+                        });
+                    } else {
+                        res.status(200).send(response);
                     }
-                ).sort();
-            });
-
+                }
+            );
         } catch (err) {
             console.log(err.stack);
             res.status(500).send(err);

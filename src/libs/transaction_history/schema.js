@@ -28,7 +28,7 @@ let transaction_historySchema = new schema({
   },
   transaction_status: {
     type: String,
-    enum: ["pending", "approved"],
+    enum: ["pending", "approved", 'rejected'],
     default: "pending",
   }
 },

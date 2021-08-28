@@ -70,6 +70,7 @@ module.exports = {
     try {
       transaction_historyDb
         .find(query, projection, options)
+        .populate('wallet_id')
         .exec(function (err, result) {
           if (err) {
             callback(err, null);
