@@ -32,12 +32,12 @@ module.exports = {
       next();
     }
   },
-  authenticateToken: function(req, res, next) {
+  authenticateToken: function (req, res, next) {
     try {
       var token = req.body.token || req.headers["authorization"];
       if (token) {
         // verifies secret and checks expiry
-        jwt.verify(token, settings.secret, function(err, decoded) {
+        jwt.verify(token, settings.secret, function (err, decoded) {
           if (err) {
             if (req.user && req.user.data) {
               return res.status(403).send({
@@ -67,7 +67,7 @@ module.exports = {
       res.status(500).send({ error: err });
     }
   },
-  autenticateGenuinUser: function(req, res, next) {
+  autenticateGenuinUser: function (req, res, next) {
     var decodedId = req.decoded && req.decoded._id ? req.decoded._id : req.decoded._doc._id;
     if (decodedId != req.params.id) {
       res.status(403).send({ error: "Forbidden" });
@@ -75,14 +75,15 @@ module.exports = {
       next();
     }
   },
-  autenticateGenuinUserForUpdate: function(req, res, next) {
-    if (req.body.role == 'admin' && req.body._id ) {
-      res.status(403).send({ error: "Forbidden" });
-    } else {
+  autenticateGenuinUserForUpdate: function (req, res, next) {
+    if (req.body.role == 'admin') {
       next();
+    } else {
+      res.status(403).send({ error: "Forbidden" });
+
     }
   },
-  userLoggedIn: function(req, res, next) {
+  userLoggedIn: function (req, res, next) {
     if (req.user) {
       next();
     } else {

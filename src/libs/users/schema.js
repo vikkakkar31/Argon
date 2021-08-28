@@ -15,12 +15,9 @@ let userSchema = new schema({
   user_name: {
     type: String,
   },
-  designation: String,
   date_of_birth: String,
   phone_number: String,
-  skype_id: String,
   password: String,
-  customEncryptPassword: String,
   image: String,
   is_activated: {
     type: Boolean,
@@ -28,7 +25,7 @@ let userSchema = new schema({
   },
   role: {
     type: String,
-    enum: ["admin", "candidate", "employer"],
+    enum: ["admin", "candidate"],
     default: "candidate",
   },
   status: {
@@ -42,63 +39,24 @@ let userSchema = new schema({
   },
   location: {},
   address: String,
-  about_me: String,
-  summery: String,
-  work_experience: [{
-    joining_date: String,
-    leaving_date: String,
-    company_info: String,
+  bank_accounts: [{
+    account_no: Number,
+    account_holder_name: String,
+    ifsc_code: String,
+    status: {
+      type: String,
+      enum: ["active", "deactive"],
+      default: "active",
+    }
   }],
+  googlePayNumer: Number,
+  phonePayNumer: Number,
+  paytmNumer: Number,
   socket_id: String,
-  user_image_path: String,
-  user_video_path: String,
-  resume_path: String,
-  videoThumbnail: String,
-  isSurveyDone: {
-    type: Boolean,
-    default: false,
-  },
-  isQuestionDone: {
-    type: Boolean,
-    default: false,
-  },
-  is_deactivated: {
-    type: Boolean,
-    default: false,
-  },
-  company_name: String,
-  company_website: String,
-  instagram_link: String,
-  twitter_link: String,
-  facebook_link: String,
+  refer_code: String,
   accessToken: {
     type: JSON,
   },
-  company_jobs: [{
-    job_title: String,
-    hourly_rate: String,
-    benefits: String,
-    description: String
-  }],
-  lookingForSurvey: String,
-  interViewVideoLink: String,
-  resumeLink: String,
-  aptitudeQuestion: [{
-    assessmentAttributes: String,
-    assessmentQuestions: String,
-    assessmentResponseAnswer: String,
-  }],
-  selectedAnswers: [{
-    _id: false,
-    question_id: { type: schema.ObjectId, ref: "jobSeekersQuestionsSchema" },
-    values: schema.Types.Mixed,
-  }],
-  subscription: {
-    sub_type: String,
-    sub_plan: { type: schema.ObjectId, ref: "subscription_plans" },
-    sub_start: Date,
-    sub_end: Date
-  }
 },
   {
     collection: "users",

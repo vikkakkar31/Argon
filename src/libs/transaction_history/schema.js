@@ -2,18 +2,18 @@ let mongoose = require("mongoose");
 
 let schema = mongoose.Schema;
 
-let transaction_historySchema = new schema({  
-  wallet_id: { 
-    type: schema.ObjectId, 
-    ref: "wallets" 
-  },  
+let transaction_historySchema = new schema({
+  wallet_id: {
+    type: schema.ObjectId,
+    ref: "wallets"
+  },
   amount: {
     type: Number
   },
   transaction_type: {
     type: String,
     enum: ["debit", "credit"],
-    default: "debit",
+    default: "credit",
   },
   transaction_mode: {
     type: String,
@@ -23,8 +23,13 @@ let transaction_historySchema = new schema({
   transfer_number: {
     type: Number
   },
-  register_number:{
+  register_number: {
     type: Number
+  },
+  transaction_status: {
+    type: String,
+    enum: ["pending", "approved"],
+    default: "pending",
   }
 },
   {

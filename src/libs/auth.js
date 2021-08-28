@@ -1,7 +1,10 @@
 let passport = require("passport");
 let bcrypt = require("bcrypt-nodejs");
 let mongooseErrorHandler = require("mongoose-error-handler");
+var voucher_codes = require('voucher-code-generator');
 let User = require("./users/api");
+let Wallets = require("./wallets/api");
+
 
 passport.serializeUser(function (user, done) {
   done(null, user._id);
@@ -229,6 +232,12 @@ passport.use(
               } else {
                 var data = req.body;
                 data["is_activated"] = true;
+
+                let refer_code = voucher_codes.generate({
+                  prefix: data.first_name,
+                  postfix: data.last_name
+                });
+                data['refer_code'] = refer_code[0];
                 User.add(data, function (err, user) {
                   if (err) {
                     return done(
@@ -239,7 +248,20 @@ passport.use(
                       null
                     );
                   } else {
-                    return done(null, user);
+                    data['user_id'] = user._id;
+                    Wallets.add(data, (err, wallet) => {
+                      if (err) {
+                        return done(
+                          {
+                            status: 500,
+                            message: err,
+                          },
+                          null
+                        );
+                      } else {
+                        return done(null, user);
+                      }
+                    })
                   }
                 });
               }

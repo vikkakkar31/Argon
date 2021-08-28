@@ -134,7 +134,7 @@ router.post("/signup", validations.verfiyUserSignup, async (req, res, next) => {
 });
 
 router.put(
-  "/updateprofile",
+  "/updateUser",
   validations.authenticateToken,
   function (req, res, next) {
     try {
@@ -721,115 +721,6 @@ router.delete(
     } catch (err) {
       console.log(err.stack);
       res.status(500).send(err);
-    }
-  }
-);
-
-// pay stripe
-router.post(
-  "/pay",
-  //validations.authenticateToken,
-  async function (req, res, next) {
-    try {
-      // Create the PaymentIntent
-      let intent = await stripe.paymentIntents.create({
-        payment_method: req.body.payment_method_id,
-        description: req.body.description,
-        amount: req.body.amount * 100,
-        currency: 'usd',
-        confirmation_method: 'manual',
-        confirm: true
-      });
-      console.log(intent);
-      // calculate cycle start and end date
-      api.findOne(
-        { _id: req.body.user._id },
-        {},
-        {},
-        function (err, result) {
-          if (err) {
-            return res.send({ error: err });
-          } else {
-            if (result) {
-              console.log(result.data, 'user');
-              const user = result.data;
-              console.log(user.subscription, 'user');
-              var one_day = 1000 * 60 * 60 * 24;
-              let currentSubEnd = user.subscription.sub_end;
-              var nowDate = new Date(Date.now() + 0 * 24 * 60 * 60 * 1000);
-              var remainingDays = Math.ceil((currentSubEnd.getTime() - nowDate.getTime()) / (one_day));
-
-              var today = new Date(Date.now() + 0 * 24 * 60 * 60 * 1000);
-              let package_Days = today.setMonth(today.getMonth() + +req.body.planMonths);
-
-              var startDate = new Date(Date.now() + 0 * 24 * 60 * 60 * 1000);
-              var expiresDate = new Date(package_Days + remainingDays * 24 * 60 * 60 * 1000);
-
-              // update transactions table
-              const transaction = {
-                user_id: req.body.user._id,
-                planId: req.body.planId,
-                amount: req.body.amount,
-                plan_billing_period: req.body.planMonths,
-                paymentId: intent.id,
-                status: intent.status,
-                description: intent.description,
-                rawResponse: intent,
-                cycle_start: startDate,
-                cycle_end: expiresDate
-              }
-
-              let query = {
-                paymentId: transaction.paymentId
-              };
-              //transactionApi.update(query || {}, transaction, transaction.options || {}, function (err, response) {
-              transactionApi.add(transaction, function (err, response) {
-                if (err) {
-                  return res.status(500).send({
-                    error: err,
-                  });
-                } else {
-                  //now update user table if success
-                  if (intent.status === 'succeeded') {
-                    var upData = {
-                      subscription: {
-                        sub_type: 'paid',
-                        sub_plan: req.body.planId,
-                        sub_start: startDate,
-                        sub_end: expiresDate
-                      }
-                    }
-                    //console.log(upData);
-                    api.update(
-                      { _id: req.body.user._id },
-                      upData,
-                      {},
-                      function (err, response) {
-                        if (err) {
-                          return res.status(500).send({ error: err });
-                        } else {
-                          const data = JSON.parse(JSON.stringify(response));
-                          // console.log(response);
-                          return res.status(200).send({ success: true, data });
-                        }
-                      }
-                    );
-                  } else {
-                    // Invalid status
-                    return res.status(500).send({ error: 'Invalid PaymentIntent status' });
-                  }
-                }
-              });
-              //end transaction up code
-            } else {
-              return res.status(500).send({ error: "User not found!" });
-            }
-          }
-        });
-
-    } catch (e) {
-      // Display error on client
-      return res.status(500).send({ error: e.message });
     }
   }
 );

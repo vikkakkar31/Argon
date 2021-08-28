@@ -10,7 +10,7 @@ router.post("/createWallet",
         try {
             var data = req.body;
             if (data && Object.keys(data).length) {
-                delete(data._id);
+                delete (data._id);
                 console.log(data);
                 api.add(data, function (err, response) {
                     if (err) {
@@ -32,7 +32,6 @@ router.post("/createWallet",
 
 router.put(
     "/updateWallet/:id",
-    validations.autenticateGenuinUserForUpdate,
     validations.authenticateToken,
     function (req, res, next) {
         try {
@@ -40,8 +39,8 @@ router.put(
             if (Object.keys(data).length) {
                 let query = req.query;
                 query._id = req.params.id;
-                delete(data._id);
-                delete(data.__v);
+                delete (data._id);
+                delete (data.__v);
                 api.update(query || {}, data, data.options || {}, function (err, response) {
                     if (err) {
                         res.status(500).send({
@@ -89,11 +88,11 @@ router.get(
                     queryString.options || {},
                     function (err, response) {
                         if (err) {
-                        res.status(500).send({
-                            error: err,
-                        });
+                            res.status(500).send({
+                                error: err,
+                            });
                         } else {
-                        res.status(200).send({ totalCount: result, response });
+                            res.status(200).send({ totalCount: result, response });
                         }
                     }
                 ).sort();
@@ -110,33 +109,33 @@ router.get(
     "/getWallet/:id",
     validations.authenticateToken,
     function (req, res, next) {
-      try {
-        var queryString = req;
-        var projection = queryString.projection || {};
-        projection.password = 0;
-        var query = {
-          _id: req.params.id,
-        };
-        api.findAll(
-          query,
-          projection,
-          queryString.options || {},
-          function (err, response) {
-            if (err) {
-              res.status(500).send({
-                error: err,
-              });
-            } else {
-              res.status(200).send(response);
-            }
-          }
-        );
-      } catch (err) {
-        console.log(err.stack);
-        res.status(500).send(err);
-      }
+        try {
+            var queryString = req;
+            var projection = queryString.projection || {};
+            projection.password = 0;
+            var query = {
+                user_id: req.params.id,
+            };
+            api.findAll(
+                query,
+                projection,
+                queryString.options || {},
+                function (err, response) {
+                    if (err) {
+                        res.status(500).send({
+                            error: err,
+                        });
+                    } else {
+                        res.status(200).send(response);
+                    }
+                }
+            );
+        } catch (err) {
+            console.log(err.stack);
+            res.status(500).send(err);
+        }
     }
-  );
+);
 
 router.delete("/removeWallet", validations.authenticateToken,
     function (req, res, next) {
