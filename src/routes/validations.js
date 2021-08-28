@@ -2,8 +2,8 @@ let settings = require("../../config/config.json");
 let jwt = require("jsonwebtoken");
 module.exports = {
   verfiyUserSignup: function (req, res, next) {
-    if (!req.body.email) {
-      res.status(403).send({ error: "Email not present" });
+    if (!req.body.phone_number) {
+      res.status(403).send({ error: "phone_number not present" });
     } else if (!req.body.first_name) {
       res.status(403).send({ error: "first_name not present" });
     } else if (!req.body.last_name) {
@@ -17,6 +17,15 @@ module.exports = {
   verfiyUserSignin: function (req, res, next) {
     if (!req.body.email) {
       res.status(403).send({ error: "Email not present" });
+    } else if (!req.body.password) {
+      res.status(403).send({ error: "password not present" });
+    } else {
+      next();
+    }
+  },
+  verfiyUserMobileSignin: function (req, res, next) {
+    if (!req.body.phone_number) {
+      res.status(403).send({ error: "Mobile Number not present" });
     } else if (!req.body.password) {
       res.status(403).send({ error: "password not present" });
     } else {

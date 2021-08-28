@@ -3,14 +3,13 @@ let router = express.Router();
 let api = require("../libs/games/api");
 let gamesDb = require("../libs/games/schema");
 let validations = require("./validations");
-
 router.post("/createGame",
     // validations.authenticateToken,
     function (req, res, next) {
         try {
             var data = req.body;
             if (data && Object.keys(data).length) {
-                delete(data._id);
+                delete (data._id);
                 console.log(data);
                 api.add(data, function (err, response) {
                     if (err) {
@@ -40,8 +39,8 @@ router.put(
             if (Object.keys(data).length) {
                 let query = req.query;
                 query._id = req.params.id;
-                delete(data._id);
-                delete(data.__v);
+                delete (data._id);
+                delete (data.__v);
                 api.update(query || {}, data, data.options || {}, function (err, response) {
                     if (err) {
                         res.status(500).send({
@@ -74,8 +73,8 @@ router.get(
             var size = parseInt(req.query.pageSize);
             var option = {};
             if (pageNo < 0 || pageNo === 0) {
-              response = { "error": true, "message": "invalid page number, should start with 1" };
-              return res.json(response);
+                response = { "error": true, "message": "invalid page number, should start with 1" };
+                return res.json(response);
             }
             option.skip = size * (pageNo - 1);
             option.limit = size;
@@ -99,11 +98,11 @@ router.get(
                     queryString.options || {},
                     function (err, response) {
                         if (err) {
-                        res.status(500).send({
-                            error: err,
-                        });
+                            res.status(500).send({
+                                error: err,
+                            });
                         } else {
-                        res.status(200).send({ totalCount: result, response });
+                            res.status(200).send({ totalCount: result, response });
                         }
                     }
                 ).sort();
@@ -120,33 +119,33 @@ router.get(
     "/getGame/:id",
     validations.authenticateToken,
     function (req, res, next) {
-      try {
-        var queryString = req;
-        var projection = queryString.projection || {};
-        projection.password = 0;
-        var query = {
-          _id: req.params.id,
-        };
-        api.findAll(
-          query,
-          projection,
-          queryString.options || {},
-          function (err, response) {
-            if (err) {
-              res.status(500).send({
-                error: err,
-              });
-            } else {
-              res.status(200).send(response);
-            }
-          }
-        );
-      } catch (err) {
-        console.log(err.stack);
-        res.status(500).send(err);
-      }
+        try {
+            var queryString = req;
+            var projection = queryString.projection || {};
+            projection.password = 0;
+            var query = {
+                _id: req.params.id,
+            };
+            api.findAll(
+                query,
+                projection,
+                queryString.options || {},
+                function (err, response) {
+                    if (err) {
+                        res.status(500).send({
+                            error: err,
+                        });
+                    } else {
+                        res.status(200).send(response);
+                    }
+                }
+            );
+        } catch (err) {
+            console.log(err.stack);
+            res.status(500).send(err);
+        }
     }
-  );
+);
 
 router.delete("/removeGame", validations.authenticateToken,
     function (req, res, next) {

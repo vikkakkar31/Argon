@@ -3,49 +3,53 @@ let mongoose = require("mongoose");
 let schema = mongoose.Schema;
 
 let game_betsSchema = new schema({
-  bet: [
+  bets: [
     {
       bet_number: Number,
-      user_bet:[{
+      user_bet: [{
         bet_amount: Number,
-        user_id: { 
-          type: schema.ObjectId, 
+        user_id: {
+          type: schema.ObjectId,
           ref: "users"
-        }
+        },
+        createdDate: Date
       }]
     }
   ],
-  inside_bet: [
+  inside_bets: [
     {
       bet_number: Number,
-      user_bet:[{
+      user_bet: [{
         bet_amount: Number,
-        user_id: { 
-          type: schema.ObjectId, 
+        user_id: {
+          type: schema.ObjectId,
           ref: "users"
-        }
+        },
+        createdDate: Date
       }]
     }
   ],
-  outside_bet: [
+  outside_bets: [
     {
       bet_number: Number,
-      user_bet:[{
+      user_bet: [{
         bet_amount: Number,
-        user_id: { 
-          type: schema.ObjectId, 
+        user_id: {
+          type: schema.ObjectId,
           ref: "users"
-        }
+        },
+        createdDate: Date
       }]
     }
   ],
-  game_id: { 
-    type: schema.ObjectId, 
-    ref: "games" 
-  }
+  game_id: {
+    type: schema.ObjectId,
+    ref: "games"
+  },
+  createdDate: Date
 },
   {
-    collection: "games",
+    collection: "game_bets",
     timestamps: {},
   }
 );

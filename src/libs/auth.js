@@ -108,18 +108,103 @@ passport.use(
 );
 
 passport.use(
-  "user-signup",
+  "user-mobile-login",
   new LocalStrategy(
     {
-      usernameField: "email",
+      usernameField: "phone_number",
       passwordField: "password",
       passReqToCallback: true,
     },
-    function (req, email, password, done) {
+    function (req, phone_number, password, done) {
       process.nextTick(function () {
         User.findOne(
           {
-            email: email,
+            phone_number: phone_number,
+          },
+          {},
+          {},
+          function (err, user) {
+            if (err) {
+              return done(
+                {
+                  status: 404,
+                  message: mongooseErrorHandler.set(err, req.t),
+                },
+                null
+              );
+            }
+            if (!user.data || !Object.keys(user.data).length)
+              return done(
+                {
+                  status: 403,
+                  message: "Cant't find a user with this phone_number",
+                },
+                null
+              );
+            user.data.comparePasswordUser(password, function (err, isMatched) {
+              try {
+                if (err) {
+                  return done(
+                    {
+                      status: 404,
+                      message: mongooseErrorHandler.set(err, req.t),
+                    },
+                    null
+                  );
+                }
+                if (isMatched) {
+                  user.data = user.data.toObject();
+                  delete user.data.password;
+                  if (user.data.status === 'deactive') {
+                    return done(
+                      {
+                        status: 401,
+                        message: "This User is not active.",
+                      },
+                      null
+                    );
+                  }
+                  return done(null, user.data);
+                } else {
+                  return done(
+                    {
+                      status: 401,
+                      message: "Password not Matched.",
+                    },
+                    null
+                  );
+                }
+              } catch (e) {
+                console.log(e.stack);
+                return done(
+                  {
+                    status: 500,
+                    message: e,
+                  },
+                  null
+                );
+              }
+            });
+          }
+        );
+      });
+    }
+  )
+);
+
+passport.use(
+  "user-signup",
+  new LocalStrategy(
+    {
+      usernameField: "phone_number",
+      passwordField: "password",
+      passReqToCallback: true,
+    },
+    function (req, phone_number, password, done) {
+      process.nextTick(function () {
+        User.findOne(
+          {
+            phone_number: phone_number,
           },
           {},
           {},
@@ -137,7 +222,7 @@ passport.use(
                 return done(
                   {
                     status: 400,
-                    message: 'User already exist with this email.',
+                    message: 'User already exist with this phone_number.',
                   },
                   null
                 );
