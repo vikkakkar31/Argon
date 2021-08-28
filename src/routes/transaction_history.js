@@ -15,7 +15,8 @@ router.get(
       var projection = queryString.projection || {};
       projection.password = 0;
       var query = {
-        transaction_status: 'pending'
+        transaction_status: 'pending',
+        transaction_type: req.query.transaction_type ? req.query.transaction_type : 'debit'
       };
       api.findAll(
         query,
@@ -81,19 +82,33 @@ router.put(
           } else {
             walletsApi.findOne({ _id: transResponse.wallet_id }, {}, {}, (err, result) => {
               let walletData = {};
-              if (transResponse.transaction_type === 'debit') {
+              if (transResponse.transaction_type === 'debit' && result.total_amount >= transResponse.amount) {
                 walletData = {
                   total_amount: result.total_amount - transResponse.amount,
                 }
-              } else {
+              } else if (transResponse.transaction_type === 'credit') {
                 walletData = {
                   total_amount: result.total_amount ? result.total_amount + transResponse.amount : transResponse.amount,
                 }
               }
-              walletsApi.update({ _id: transResponse.wallet_id } || {}, walletData, data.options || {}, function (err, response) {
-                let resp = JSON.parse(JSON.stringify(transResponse));
-                res.status(200).send(resp);
-              })
+              if (walletData.total_amount) {
+                walletsApi.update({ _id: transResponse.wallet_id } || {}, walletData, data.options || {}, function (err, response) {
+                  let resp = JSON.parse(JSON.stringify(transResponse));
+                  res.status(200).send(resp);
+                })
+              } else {
+                let rejectData = {
+                  "transaction_id": data.transaction_id,
+                  "transaction_status": "rejected",
+                  "role": "admin"
+                }
+                let query = {
+                  _id: data.transaction_id
+                };
+                api.update(query || {}, rejectData, data.options || {}, function (err, transResponse) {
+                  res.status(200).send({ message: 'User Dont have sufficient funds your transection is rejected' });
+                })
+              }
             })
           }
         });
@@ -142,46 +157,21 @@ router.get(
       var queryString = req;
       var projection = queryString.projection || {};
       projection.password = 0;
-      var pageNo = parseInt(req.query.pageNumber);
-      var size = parseInt(req.query.pageSize);
-      var option = {};
-      if (pageNo < 0 || pageNo === 0) {
-        response = { "error": true, "message": "invalid page number, should start with 1" };
-        return res.json(response);
-      }
-      option.skip = size * (pageNo - 1);
-      option.limit = size;
-      queryString.options = option;
-
-      // let sortOrder = req.query.sortOrder;
-      // let mySort = { ['plan_billing_period']: 'asc' };
-      // if(req.query.sortField) {
-      //     mySort = { [req.query.sortField]: sortOrder };
-      // }
-
-      let query = {};
-      // if (queryString.query && queryString.query.plan_status) {
-      //     query = { ...query, plan_status: queryString.query.plan_status };
-      // }
-      var queryString = req.query;
-      transaction_historyDb.count(query, (err, result) => {
-        transaction_historyDb.find(
-          query,
-          projection,
-          queryString.options || {},
-          function (err, response) {
-            if (err) {
-              res.status(500).send({
-                error: err,
-              });
-            } else {
-              res.status(200).send({ totalCount: result, response });
-            }
+      var query = queryString.query;
+      api.findAll(
+        query,
+        projection,
+        queryString.options || {},
+        function (err, response) {
+          if (err) {
+            res.status(500).send({
+              error: err,
+            });
+          } else {
+            res.status(200).send(response);
           }
-        ).sort();
-        //).populate("wallet_id").sort();
-      });
-
+        }
+      );
     } catch (err) {
       console.log(err.stack);
       res.status(500).send(err);
