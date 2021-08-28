@@ -5,7 +5,6 @@ let bcrypt = require("bcrypt-nodejs");
 let jwt = require("jsonwebtoken");
 let settings = require("../../config/config.json");
 require("../libs/auth");
-let transactionApi = require("../libs/subscription_transactions/api");
 let settingsApi = require("../libs/settings/api");
 let api = require("../libs/users/api");
 let userDb = require("../libs/users/schema");
