@@ -46,6 +46,10 @@ let game_betsSchema = new schema({
     type: schema.ObjectId,
     ref: "games"
   },
+  user_id: [{
+    type: schema.ObjectId,
+    ref: "users"
+  }],
   createdDate: Date
 },
   {

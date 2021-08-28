@@ -147,6 +147,42 @@ router.get(
     }
 );
 
+router.get(
+    "/getTodaysGame",
+    function (req, res, next) {
+        try {
+            var queryString = req;
+            var projection = queryString.projection || {};
+            projection.password = 0;
+            var start = new Date(); //Start Date
+            start.setHours(0,0,0,0);
+            var end = new Date(); //End Date
+            end.setHours(23,59,59,999);
+            var query = {
+                start_date: {$gte: start, $lt: end}
+            };
+            console.log(query, "QUERYYYY");
+            api.findAll(
+                query,
+                projection,
+                queryString.options || {},
+                function (err, response) {
+                    if (err) {
+                        res.status(500).send({
+                            error: err,
+                        });
+                    } else {
+                        res.status(200).send(response);
+                    }
+                }
+            );
+        } catch (err) {
+            console.log(err.stack);
+            res.status(500).send(err);
+        }
+    }
+);
+
 router.delete("/removeGame", validations.authenticateToken,
     function (req, res, next) {
         try {
