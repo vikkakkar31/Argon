@@ -125,7 +125,7 @@ router.get(
 );
 
 router.post(
-    "/userGameBets",
+    "/GameResultsData",
     validations.authenticateToken,
     function (req, res, next) {
         try {
@@ -133,7 +133,7 @@ router.post(
             var projection = queryString.projection || {};
             projection.password = 0;
             let query = {};
-            if (queryString.body && queryString.body.user_id) {
+            if (queryString.body && (queryString.body.user_id || queryString.body.game_id)) {
                 query = { ...query, winner_user_id: queryString.body.user_id, game_id: queryString.body.game_id };
             }
             api.findAll(
