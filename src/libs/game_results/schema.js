@@ -2,7 +2,7 @@ let mongoose = require("mongoose");
 
 let schema = mongoose.Schema;
 
-let game_resultsSchema = new schema({  
+let game_resultsSchema = new schema({
   game_id: {
     type: schema.ObjectId,
     ref: "games"
@@ -21,7 +21,7 @@ let game_resultsSchema = new schema({
 },
   {
     collection: "game_results",
-    timestamps: {},
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
   }
 );
 

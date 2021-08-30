@@ -16,53 +16,116 @@ router.post("/createGameBets",
                     {},
                     (err, result) => {
                         if (result) {
-                            let bet, user_bet;
-                            bet = data.bets || [];
-                            user_bet = bet[0].user_bet || [];
+                            // let bet, user_bet;
+                            // bet = data.bets || [];
+                            // user_bet = bet[0].user_bet || [];
+                            // let update = result;
+                            // if (data.type === 'bets') {
+                            //     let oldIndex = result.bets.findIndex((el) => el.bet_number === bet[0].bet_number);
+                            //     let oldBets = result.bets.find((el) => el.bet_number === bet[0].bet_number);
+                            //     let newAmount = [];
+                            //     if (oldBets && oldBets.id) {
+                            //         newAmount = oldBets.user_bet.find((user) => user.bet_amount != bet[0].user_bet[0].bet_amount);
+                            //         let oldUserIndex = oldBets.user_bet.findIndex((el) => el.bet_amount === bet[0].user_bet[0].bet_amount);
+                            //         if (oldUserIndex === -1) {
+                            //             oldBets.user_bet[0].bet_amount = bet[0].user_bet[0].bet_amount;
+                            //             update.bets[oldIndex] = oldBets;
+                            //         }
+                            //     } else {
+                            //         update.bets.push(...bet)
+                            //     }
+                            // } else if (data.type === 'inside_bets') {
+                            //     let oldIndex = result.inside_bets.findIndex((el) => el.bet_number === bet[0].bet_number);
+                            //     let oldBets = result.inside_bets.find((el) => el.bet_number === bet[0].bet_number);
+                            //     let newAmount = [];
+                            //     if (oldBets && oldBets.id) {
+                            //         newAmount = oldBets.user_bet.find((user) => user.bet_amount != bet[0].user_bet[0].bet_amount);
+                            //         let oldUserIndex = oldBets.user_bet.findIndex((el) => el.bet_amount === bet[0].user_bet[0].bet_amount);
+                            //         if (oldUserIndex === -1) {
+                            //             oldBets.user_bet[0].bet_amount = bet[0].user_bet[0].bet_amount;
+                            //             update.bets[oldIndex] = oldBets;
+                            //         }
+                            //     } else {
+                            //         update.inside_bets.push(...bet)
+                            //     }
+                            // } else if (data.type === 'outside_bets') {
+                            //     let oldIndex = result.outside_bets.findIndex((el) => el.bet_number === bet[0].bet_number);
+                            //     let oldBets = result.outside_bets.find((el) => el.bet_number === bet[0].bet_number);
+                            //     let newAmount = [];
+                            //     if (oldBets && oldBets.id) {
+                            //         newAmount = oldBets.user_bet.find((user) => user.bet_amount != bet[0].user_bet[0].bet_amount);
+                            //         let oldUserIndex = oldBets.user_bet.findIndex((el) => el.bet_amount === bet[0].user_bet[0].bet_amount);
+                            //         if (oldUserIndex === -1) {
+                            //             oldBets.user_bet[0].bet_amount = bet[0].user_bet[0].bet_amount;
+                            //             update.bets[oldIndex] = oldBets;
+                            //         }
+                            //     } else {
+                            //         update.outside_bets.push(...bet)
+                            //     }
+                            // } else {
+                            let bets, inside_bets, outside_bets;
+                            bets = data.bets || [];
+                            inside_bets = data.inside_bets || [];
+                            outside_bets = data.outside_bets || [];
                             let update = result;
-                            if (data.type === 'bets') {
-                                let oldIndex = result.bets.findIndex((el) => el.bet_number === bet[0].bet_number);
-                                let oldBets = result.bets.find((el) => el.bet_number === bet[0].bet_number);
-                                let newAmount = [];
-                                if (oldBets && oldBets.id) {
-                                    newAmount = oldBets.user_bet.find((user) => user.bet_amount != bet[0].user_bet[0].bet_amount);
-                                    let oldUserIndex = oldBets.user_bet.findIndex((el) => el.bet_amount === bet[0].user_bet[0].bet_amount);
-                                    if (oldUserIndex === -1) {
-                                        oldBets.user_bet[0].bet_amount = bet[0].user_bet[0].bet_amount;
-                                        update.bets[oldIndex] = oldBets;
+                            if (bets.length) {
+                                bets.forEach((bet) => {
+                                    let oldIndex = result.bets.findIndex((el) => el.bet_number === bet.bet_number);
+                                    let oldBets = result.bets.find((el) => el.bet_number === bet.bet_number);
+                                    let newAmount = [];
+                                    if (oldBets && oldBets.id) {
+                                        bet.user_bet.forEach((userBet) => {
+                                            newAmount = oldBets.user_bet.find((user) => user.bet_amount != userBet.bet_amount);
+                                            let oldUserIndex = oldBets.user_bet.findIndex((el) => el.bet_amount === userBet.bet_amount);
+                                            if (oldUserIndex === -1) {
+                                                oldBets.user_bet[0].bet_amount = bets[0].user_bet[0].bet_amount;
+                                                update.bets[oldIndex] = oldBets;
+                                            }
+                                        })
+                                    } else {
+                                        update.bets.push(...bet)
                                     }
-                                } else {
-                                    update.bets.push(...bet)
-                                }
-                            } else if (data.type === 'inside_bets') {
-                                let oldIndex = result.inside_bets.findIndex((el) => el.bet_number === bet[0].bet_number);
-                                let oldBets = result.inside_bets.find((el) => el.bet_number === bet[0].bet_number);
-                                let newAmount = [];
-                                if (oldBets && oldBets.id) {
-                                    newAmount = oldBets.user_bet.find((user) => user.bet_amount != bet[0].user_bet[0].bet_amount);
-                                    let oldUserIndex = oldBets.user_bet.findIndex((el) => el.bet_amount === bet[0].user_bet[0].bet_amount);
-                                    if (oldUserIndex === -1) {
-                                        oldBets.user_bet[0].bet_amount = bet[0].user_bet[0].bet_amount;
-                                        update.bets[oldIndex] = oldBets;
-                                    }
-                                } else {
-                                    update.inside_bets.push(...bet)
-                                }
-                            } else if (data.type === 'outside_bets') {
-                                let oldIndex = result.outside_bets.findIndex((el) => el.bet_number === bet[0].bet_number);
-                                let oldBets = result.outside_bets.find((el) => el.bet_number === bet[0].bet_number);
-                                let newAmount = [];
-                                if (oldBets && oldBets.id) {
-                                    newAmount = oldBets.user_bet.find((user) => user.bet_amount != bet[0].user_bet[0].bet_amount);
-                                    let oldUserIndex = oldBets.user_bet.findIndex((el) => el.bet_amount === bet[0].user_bet[0].bet_amount);
-                                    if (oldUserIndex === -1) {
-                                        oldBets.user_bet[0].bet_amount = bet[0].user_bet[0].bet_amount;
-                                        update.bets[oldIndex] = oldBets;
-                                    }
-                                } else {
-                                    update.outside_bets.push(...bet)
-                                }
+                                })
                             }
+                            if (inside_bets.length) {
+                                inside_bets.forEach((bet) => {
+                                    let oldIndex = result.inside_bets.findIndex((el) => el.bet_number === bet.bet_number);
+                                    let oldBets = result.inside_bets.find((el) => el.bet_number === bet.bet_number);
+                                    let newAmount = [];
+                                    if (oldBets && oldBets.id) {
+                                        bet.user_bet.forEach((userBet) => {
+                                            newAmount = oldBets.user_bet.find((user) => user.bet_amount != userBet.bet_amount);
+                                            let oldUserIndex = oldBets.user_bet.findIndex((el) => el.bet_amount === userBet.bet_amount);
+                                            if (oldUserIndex === -1) {
+                                                oldBets.user_bet[0].bet_amount = bets[0].user_bet[0].bet_amount;
+                                                update.inside_bets[oldIndex] = oldBets;
+                                            }
+                                        })
+                                    } else {
+                                        update.inside_bets.push(...bet)
+                                    }
+                                })
+                            }
+                            if (outside_bets.length) {
+                                outside_bets.forEach((bet) => {
+                                    let oldIndex = result.outside_bets.findIndex((el) => el.bet_number === bet.bet_number);
+                                    let oldBets = result.outside_bets.find((el) => el.bet_number === bet.bet_number);
+                                    let newAmount = [];
+                                    if (oldBets && oldBets.id) {
+                                        bet.user_bet.forEach((userBet) => {
+                                            newAmount = oldBets.user_bet.find((user) => user.bet_amount != userBet.bet_amount);
+                                            let oldUserIndex = oldBets.user_bet.findIndex((el) => el.bet_amount === userBet.bet_amount);
+                                            if (oldUserIndex === -1) {
+                                                oldBets.user_bet[0].bet_amount = bets[0].user_bet[0].bet_amount;
+                                                update.outside_bets[oldIndex] = oldBets;
+                                            }
+                                        })
+                                    } else {
+                                        update.outside_bets.push(...bet)
+                                    }
+                                })
+                            }
+                            // }
                             api.update({ game_id: data.game_id }, update, {}, (err, response) => {
                                 if (err) {
                                     res.status(500).send({ error: err });

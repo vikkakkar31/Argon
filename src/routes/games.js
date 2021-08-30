@@ -41,16 +41,25 @@ router.put(
                 query._id = req.params.id;
                 delete (data._id);
                 delete (data.__v);
-                api.update(query || {}, data, data.options || {}, function (err, response) {
-                    if (err) {
-                        res.status(500).send({
-                            error: err,
+                api.findOne(
+                    { _id: query._id },
+                    {},
+                    {},
+                    (err, result) => {
+                        let update = result;
+                        update.today_game_result.push(data.today_game_result)
+                        api.update(query || {}, update, data.options || {}, function (err, response) {
+                            if (err) {
+                                res.status(500).send({
+                                    error: err,
+                                });
+                            } else {
+                                response = JSON.parse(JSON.stringify(response));
+                                res.status(200).send(response);
+                            }
                         });
-                    } else {
-                        response = JSON.parse(JSON.stringify(response));
-                        res.status(200).send(response);
-                    }
-                });
+                    })
+
             } else {
                 res.status(404).send({
                     message: "Error in data updation.",
@@ -155,11 +164,11 @@ router.get(
             var projection = queryString.projection || {};
             projection.password = 0;
             var start = new Date(); //Start Date
-            start.setHours(0,0,0,0);
+            start.setHours(0, 0, 0, 0);
             var end = new Date(); //End Date
-            end.setHours(23,59,59,999);
+            end.setHours(23, 59, 59, 999);
             var query = {
-                start_date: {$gte: start, $lt: end}
+                start_date: { $gte: start, $lt: end }
             };
             console.log(query, "QUERYYYY");
             api.findAll(
