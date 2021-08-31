@@ -1,6 +1,7 @@
 let express = require("express");
 let router = express.Router();
 let api = require("../libs/games/api");
+let gameResultApi = require("../libs/game_results/api");
 let gamesDb = require("../libs/games/schema");
 let validations = require("./validations");
 router.post("/createGame",
@@ -39,27 +40,34 @@ router.put(
             if (Object.keys(data).length) {
                 let query = req.query;
                 query._id = req.params.id;
-                delete (data._id);
-                delete (data.__v);
-                api.findOne(
-                    { _id: query._id },
-                    {},
-                    {},
-                    (err, result) => {
-                        let update = result;
-                        update.today_game_result.push(data.today_game_result)
-                        api.update(query || {}, update, data.options || {}, function (err, response) {
-                            if (err) {
-                                res.status(500).send({
-                                    error: err,
+                let addData = {
+                    game_id: req.params.id,
+                    ...data.today_game_result
+                }
+                gameResultApi.add(addData, function (err, resultRes) {
+                    if (err) {
+                        res.status(500).send({ error: err });
+                    } else {
+                        api.findOne(
+                            { _id: query._id },
+                            {},
+                            {},
+                            (err, result) => {
+                                let update = result;
+                                update.today_game_result.push(data.today_game_result)
+                                api.update(query || {}, update, data.options || {}, function (err, response) {
+                                    if (err) {
+                                        res.status(500).send({
+                                            error: err,
+                                        });
+                                    } else {
+                                        response = JSON.parse(JSON.stringify(response));
+                                        res.status(200).send(response);
+                                    }
                                 });
-                            } else {
-                                response = JSON.parse(JSON.stringify(response));
-                                res.status(200).send(response);
-                            }
-                        });
-                    })
-
+                            })
+                    }
+                });
             } else {
                 res.status(404).send({
                     message: "Error in data updation.",
@@ -157,7 +165,7 @@ router.get(
 );
 
 router.get(
-    "/getTodaysGame",
+    "/getLatestResult",
     function (req, res, next) {
         try {
             var queryString = req;
@@ -170,7 +178,6 @@ router.get(
             var query = {
                 start_date: { $gte: start, $lt: end }
             };
-            console.log(query, "QUERYYYY");
             api.findAll(
                 query,
                 projection,

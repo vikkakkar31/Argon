@@ -17,7 +17,7 @@ let transaction_historySchema = new schema({
   },
   transaction_mode: {
     type: String,
-    enum: ["gpay", "paytm", "card"],
+    enum: ["gpay", "paytm", "card", "bets"],
     default: "card",
   },
   transfer_number: {

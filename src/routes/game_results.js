@@ -64,14 +64,14 @@ router.put(
     }
 );
 router.get(
-    "/getGameResults",
+    "/getLatestResult",
     function (req, res, next) {
         try {
             var queryString = req;
             var projection = queryString.projection || {};
             projection.password = 0;
             var query = {};
-            api.findAll(
+            gameResultsDb.find(
                 query,
                 projection,
                 queryString.options || {},
@@ -84,7 +84,7 @@ router.get(
                         res.status(200).send(response);
                     }
                 }
-            );
+            ).sort({ _id: -1 }).limit(1);
         } catch (err) {
             console.log(err.stack);
             res.status(500).send(err);

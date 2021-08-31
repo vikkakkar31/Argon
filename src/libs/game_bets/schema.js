@@ -6,51 +6,38 @@ let game_betsSchema = new schema({
   bets: [
     {
       bet_number: Number,
-      user_bet: [{
-        bet_amount: Number,
-        user_id: {
-          type: schema.ObjectId,
-          ref: "users"
-        },
-        createdDate: Date
-      }]
+      bet_amount: Number,
+      createdDate: { type: Date, default: Date.now }
     }
   ],
   inside_bets: [
     {
       bet_number: Number,
-      user_bet: [{
-        bet_amount: Number,
-        user_id: {
-          type: schema.ObjectId,
-          ref: "users"
-        },
-        createdDate: Date
-      }]
+      bet_amount: Number,
+      createdDate: { type: Date, default: Date.now }
     }
   ],
   outside_bets: [
     {
       bet_number: Number,
-      user_bet: [{
-        bet_amount: Number,
-        user_id: {
-          type: schema.ObjectId,
-          ref: "users"
-        },
-        createdDate: Date
-      }]
+      bet_amount: Number,
+      createdDate: { type: Date, default: Date.now }
     }
   ],
   game_id: {
     type: schema.ObjectId,
     ref: "games"
   },
-  user_id: [{
+  user_id: {
     type: schema.ObjectId,
     ref: "users"
-  }],
-  createdDate: Date
+  },
+  wallet_id: {
+    type: schema.ObjectId,
+    ref: "wallets"
+  },
+  total_ammount_spend: Number,
+  createdDate: { type: Date, default: Date.now }
 },
   {
     collection: "game_bets",
