@@ -70,6 +70,8 @@ module.exports = {
     try {
       gameResultsDb
         .find(query, projection, options)
+        .populate('game_id')
+        .sort({ _id: -1 })
         .exec(function (err, result) {
           if (err) {
             callback(err, null);

@@ -158,20 +158,63 @@ router.get(
       var projection = queryString.projection || {};
       projection.password = 0;
       var query = queryString.query;
-      api.findAll(
-        query,
-        projection,
-        queryString.options || {},
-        function (err, response) {
-          if (err) {
-            res.status(500).send({
-              error: err,
-            });
-          } else {
-            res.status(200).send(response);
+      if (query.createdAt) {
+        var start = new Date(query.createdAt); //Start Date
+        start.setHours(0, 0, 0, 0);
+        var end = new Date(query.createdAt); //End Date
+        end.setHours(23, 59, 59, 999);
+        query.createdAt = { $gte: start, $lt: end }
+      }
+      if (query.phone_number) {
+        walletsApi.findOne(
+          { phone_number: query.phone_number },
+          projection,
+          queryString.options || {},
+          function (err, response) {
+            if (err) {
+              res.status(500).send({
+                error: err,
+              });
+            } else {
+              if (response && response.id) {
+                delete query.phone_number;
+                let innerQuery = { ...query, wallet_id: response.id }
+                api.findAll(
+                  innerQuery,
+                  projection,
+                  queryString.options || {},
+                  function (err, response) {
+                    if (err) {
+                      res.status(500).send({
+                        error: err,
+                      });
+                    } else {
+                      res.status(200).send(response);
+                    }
+                  }
+                );
+              } else {
+                res.status(200).send([]);
+              }
+            }
           }
-        }
-      );
+        );
+      } else {
+        api.findAll(
+          query,
+          projection,
+          queryString.options || {},
+          function (err, response) {
+            if (err) {
+              res.status(500).send({
+                error: err,
+              });
+            } else {
+              res.status(200).send(response);
+            }
+          }
+        );
+      }
     } catch (err) {
       console.log(err.stack);
       res.status(500).send(err);

@@ -64,6 +64,34 @@ router.put(
     }
 );
 router.get(
+    "/getResults",
+    function (req, res, next) {
+        try {
+            var queryString = req;
+            var projection = queryString.projection || {};
+            projection.password = 0;
+            var query = queryString.query;
+            api.findAll(
+                query,
+                projection,
+                queryString.options || {},
+                function (err, response) {
+                    if (err) {
+                        res.status(500).send({
+                            error: err,
+                        });
+                    } else {
+                        res.status(200).send(response);
+                    }
+                }
+            );
+        } catch (err) {
+            console.log(err.stack);
+            res.status(500).send(err);
+        }
+    }
+);
+router.get(
     "/getLatestResult",
     function (req, res, next) {
         try {
