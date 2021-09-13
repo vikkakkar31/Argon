@@ -6,7 +6,10 @@ const transaction_history = require("./routes/transaction_history");
 const games = require("./routes/games");
 const game_bets = require("./routes/game_bets");
 const game_results = require("./routes/game_results");
+const game_results_web = require("./routes/game_results_web");
+const games_web = require("./routes/games_web");
 const router = express.Router();
+
 
 router.use("/users", users);
 router.use("/settings", settings);
