@@ -2,6 +2,7 @@ let express = require("express");
 let router = express.Router();
 let api = require("../libs/game_results/api");
 let gameResultsDb = require("../libs/game_results/schema");
+let gameBetsapi = require("../libs/game_bets/api");
 let validations = require("./validations");
 
 router.post("/createGameResults",
@@ -112,7 +113,7 @@ router.get(
                         res.status(200).send(response);
                     }
                 }
-            ).sort({ _id: -1 }).limit(1);
+            ).populate("game_id").sort({ _id: -1 }).limit(1);
         } catch (err) {
             console.log(err.stack);
             res.status(500).send(err);

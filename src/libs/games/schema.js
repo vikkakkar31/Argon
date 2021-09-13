@@ -4,8 +4,13 @@ let schema = mongoose.Schema;
 
 let gamesSchema = new schema({
   game_name: String,
-  start_time: String,
-  end_time: String,
+  start_date: String,
+  end_date: String,
+  status: {
+    type: String,
+    enum: ["active", "deactive"],
+    default: "active",
+  },
   today_game_result: [{
     game_bet_id: {
       type: schema.ObjectId,

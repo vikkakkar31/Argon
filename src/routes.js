@@ -13,7 +13,9 @@ router.use("/settings", settings);
 router.use("/wallets", wallets);
 router.use("/transaction", transaction_history);
 router.use("/games", games);
+router.use("/games_web", games_web);
 router.use("/game_bets", game_bets);
 router.use("/game_results", game_results);
+router.use("/game_results_web", game_results_web);
 
 module.exports = router;

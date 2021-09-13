@@ -181,7 +181,7 @@ router.get(
             var queryString = req;
             var projection = queryString.projection || {};
             projection.password = 0;
-            var query = {};
+            var query = req.query;
             api.findAll(
                 query,
                 projection,

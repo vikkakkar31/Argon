@@ -71,6 +71,7 @@ module.exports = {
       transaction_historyDb
         .find(query, projection, options)
         .populate('wallet_id')
+        .sort({ _id: -1 })
         .exec(function (err, result) {
           if (err) {
             callback(err, null);
