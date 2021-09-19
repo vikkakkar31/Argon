@@ -182,6 +182,13 @@ router.get(
             var projection = queryString.projection || {};
             projection.password = 0;
             var query = req.query;
+            if (query.createdDate) {
+                var start = new Date(query.createdDate); //Start Date
+                start.setHours(0, 0, 0, 0);
+                var end = new Date(query.createdDate); //End Date
+                end.setHours(23, 59, 59, 999);
+                query.createdDate = { $gte: start, $lt: end }
+            }
             api.findAll(
                 query,
                 projection,
