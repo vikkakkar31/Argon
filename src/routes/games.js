@@ -34,91 +34,106 @@ router.post("/createGame",
 router.put(
     "/updateGame/:id",
     // validations.autenticateGenuinUserForUpdate,
-    // validations.authenticateToken,
+    validations.authenticateToken,
     function (req, res, next) {
         try {
+            let query = req.query;
+            query._id = req.params.id;
             var data = req.body;
             if (Object.keys(data).length) {
-                let query = req.query;
-                query._id = req.params.id;
-                let addData = {
-                    game_id: req.params.id,
-                    ...data.today_game_result
-                }
-                gameResultApi.add(addData, function (err, resultRes) {
-                    if (err) {
-                        res.status(500).send({ error: err });
-                    } else {
-                        api.findOne(
-                            { _id: query._id },
-                            {},
-                            {},
-                            (err, result) => {
-                                let update = result;
-                                update.today_game_result.push(data.today_game_result)
-                                api.update(query || {}, update, data.options || {}, function (err, gamesResponse) {
-                                    if (err) {
-                                        res.status(500).send({
-                                            error: err,
-                                        });
-                                    } else {
-                                        let betQuery = [{ bets: { $elemMatch: { bet_number: data.today_game_result.winning_bet_number } } },
-                                        { inside_bets: { $elemMatch: { bet_number: data.today_game_result.winning_bet_number } } },
-                                        { outside_bets: { $elemMatch: { bet_number: data.today_game_result.winning_bet_number } } }];
-                                        gameBetsapi.findAll({ $or: betQuery },
-                                            {},
-                                            {},
-                                            (err, result) => {
-                                                if (result.length) {
-                                                    result.forEach((userBets) => {
-                                                        let totalWInAmount = 0
-                                                        if (userBets.bets.length) {
-                                                            let userCurrentBets = userBets.bets.filter((bet) => {
-                                                                return bet.bet_number === data.today_game_result.winning_bet_number
-                                                            });
-                                                            if (userCurrentBets.length)
-                                                                totalWInAmount = totalWInAmount + (userCurrentBets[0].bet_amount * 90);
-                                                        }
-
-                                                        if (userBets.inside_bets.length) {
-                                                            let userCurrentInBets = userBets.inside_bets.filter((bet) => {
-                                                                return bet.bet_number === data.today_game_result.winning_bet_number
-                                                            });
-                                                            if (userCurrentInBets.length)
-                                                                totalWInAmount = totalWInAmount + (userCurrentInBets[0].bet_amount * 9);
-                                                        }
-                                                        if (userBets.outside_bets.length) {
-                                                            let userCurrentOutBets = userBets.outside_bets.filter((bet) => {
-                                                                return bet.bet_number === data.today_game_result.winning_bet_number
-                                                            });
-                                                            if (userCurrentOutBets.length)
-                                                                totalWInAmount = totalWInAmount + (userCurrentOutBets[0].bet_amount * 9);
-                                                        }
-                                                        let requestWinAmountData = {
-                                                            "wallet_id": userBets.wallet_id,
-                                                            "amount": totalWInAmount,
-                                                            "transaction_type": "credit",
-                                                            "transaction_mode": "win"
-                                                        }
-                                                        transactionApi.add(requestWinAmountData, function (err, response) {
-                                                            if (err) {
-                                                                res.status(500).send({ error: err });
-                                                            } else {
-                                                                response = JSON.parse(JSON.stringify(gamesResponse));
-                                                                res.status(200).send(response);
-                                                            }
-                                                        });
-                                                    })
-                                                } else {
-                                                    response = JSON.parse(JSON.stringify(gamesResponse));
-                                                    res.status(200).send(response);
-                                                }
-                                            })
-                                    }
+                api.findOne(
+                    { _id: query._id },
+                    {},
+                    {},
+                    (err, result) => {
+                        let update = result;
+                        update.today_game_result.push(data.today_game_result)
+                        api.update(query || {}, update, data.options || {}, function (err, gamesResponse) {
+                            if (err) {
+                                res.status(500).send({
+                                    error: err,
                                 });
-                            })
-                    }
-                });
+                            } else {
+                                var start = new Date();
+                                start.setHours(0, 0, 0, 0);
+                                var end = new Date();
+                                end.setHours(23, 59, 59, 999);
+                                gameBetsapi.findAll({ createdDate: { $gte: start, $lt: end }, game_id: req.params.id },
+                                    {},
+                                    {},
+                                    (err, result) => {
+                                        if (result.length) {
+                                            result.forEach((userBets) => {
+                                                let totalWInAmount = 0
+                                                if (userBets.bets.length) {
+                                                    let userCurrentBets = userBets.bets.filter((bet) => {
+                                                        return bet.bet_number === Number(data.today_game_result.winning_bet_number)
+                                                    });
+                                                    if (userCurrentBets.length) {
+                                                        userCurrentBets.forEach((userCurrentBet) => {
+                                                            totalWInAmount = (userCurrentBet.bet_amount * 90) + totalWInAmount;
+                                                        })
+                                                    }
+                                                }
+
+                                                if (userBets.inside_bets.length) {
+                                                    let userCurrentInBets = userBets.inside_bets.filter((bet) => {
+                                                        return bet.bet_number === Number(data.today_game_result.winning_bet_number)
+                                                    });
+                                                    if (userCurrentInBets.length) {
+                                                        userCurrentInBets.forEach((userCurrentBet) => {
+                                                            totalWInAmount = (userCurrentBet.bet_amount * 9) + totalWInAmount;
+                                                        })
+                                                    }
+                                                }
+                                                if (userBets.outside_bets.length) {
+                                                    let userCurrentOutBets = userBets.outside_bets.filter((bet) => {
+                                                        return bet.bet_number === Number(data.today_game_result.winning_bet_number)
+                                                    });
+                                                    if (userCurrentOutBets.length) {
+                                                        userCurrentOutBets.forEach((userCurrentBet) => {
+                                                            totalWInAmount = (userCurrentBet.bet_amount * 9) + totalWInAmount;
+                                                        })
+                                                    }
+                                                }
+                                                if (totalWInAmount) {
+                                                    let requestWinAmountData = {
+                                                        "wallet_id": userBets.wallet_id,
+                                                        "amount": totalWInAmount,
+                                                        "transaction_type": "credit",
+                                                        "transaction_mode": "win"
+                                                    }
+                                                    transactionApi.add(requestWinAmountData, function (err, response) {
+                                                        if (err) {
+                                                            res.status(500).send({ error: err });
+                                                        } else {
+                                                            let addData = {
+                                                                game_id: req.params.id,
+                                                                ...data.today_game_result,
+                                                                winning_amount: totalWInAmount,
+                                                            }
+                                                            gameResultApi.add(addData, function (err, resultRes) {
+                                                                if (err) {
+                                                                    res.status(500).send({ error: err });
+                                                                } else {
+                                                                    console.log(resultRes, "resultRes");
+                                                                }
+                                                            })
+                                                        }
+                                                    });
+                                                }
+
+                                            })
+                                            response = JSON.parse(JSON.stringify(gamesResponse));
+                                            res.status(200).send(response);
+                                        } else {
+                                            response = JSON.parse(JSON.stringify(gamesResponse));
+                                            res.status(200).send(response);
+                                        }
+                                    })
+                            }
+                        });
+                    })
             } else {
                 res.status(404).send({
                     message: "Error in data updation.",
@@ -173,7 +188,7 @@ router.get(
                             res.status(200).send({ totalCount: result, response });
                         }
                     }
-                ).sort({ _id: -1 });
+                ).sort({ _id: 1 });
             });
 
         } catch (err) {
