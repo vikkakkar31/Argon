@@ -70,7 +70,7 @@ module.exports = {
     try {
       gameBetsDb
         .find(query, projection, options)
-        .sort({ _id: 1 })
+        .sort({ _id: -1 })
         .exec(function (err, result) {
           if (err) {
             callback(err, null);
