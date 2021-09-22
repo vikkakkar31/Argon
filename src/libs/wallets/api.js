@@ -70,7 +70,7 @@ module.exports = {
     try {
       walletsDb
         .find(query, projection, options)
-        .sort()
+        .sort({ _id: -1 })
         .populate('user_id')
         .exec(function (err, result) {
           if (err) {
