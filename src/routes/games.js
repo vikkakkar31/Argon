@@ -76,10 +76,15 @@ router.put(
                                                         })
                                                     }
                                                 }
-
                                                 if (userBets.inside_bets.length) {
                                                     let userCurrentInBets = userBets.inside_bets.filter((bet) => {
-                                                        return bet.bet_number === Number(data.today_game_result.winning_bet_number)
+                                                        let insdeNumber
+                                                        if (data.today_game_result.winning_bet_number.toString().length === 3) {
+                                                            insdeNumber = data.today_game_result.winning_bet_number.toString()[1];
+                                                        } else {
+                                                            insdeNumber = data.today_game_result.winning_bet_number.toString()[0];
+                                                        }
+                                                        return bet.bet_number === Number(insdeNumber)
                                                     });
                                                     if (userCurrentInBets.length) {
                                                         userCurrentInBets.forEach((userCurrentBet) => {
@@ -89,7 +94,13 @@ router.put(
                                                 }
                                                 if (userBets.outside_bets.length) {
                                                     let userCurrentOutBets = userBets.outside_bets.filter((bet) => {
-                                                        return bet.bet_number === Number(data.today_game_result.winning_bet_number)
+                                                        let outSideNumber
+                                                        if (data.today_game_result.winning_bet_number.toString().length === 3) {
+                                                            outSideNumber = data.today_game_result.winning_bet_number.toString()[3];
+                                                        } else {
+                                                            outSideNumber = data.today_game_result.winning_bet_number.toString()[1];
+                                                        }
+                                                        return bet.bet_number === Number(outSideNumber)
                                                     });
                                                     if (userCurrentOutBets.length) {
                                                         userCurrentOutBets.forEach((userCurrentBet) => {
