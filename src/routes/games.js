@@ -48,7 +48,7 @@ router.put(
                     (err, result) => {
                         let update = result;
                         update.today_game_result.push(data.today_game_result)
-                        api.update(query || {}, update, data.options || {}, function (err, gamesResponse) {
+                        api.update(query || {}, update, { upsert: true }, function (err, gamesResponse) {
                             if (err) {
                                 res.status(500).send({
                                     error: err,
@@ -63,6 +63,7 @@ router.put(
                                     {},
                                     (err, result) => {
                                         if (result.length) {
+                                            let userTotalWInAmount = 0
                                             result.forEach((userBets) => {
                                                 let totalWInAmount = 0
                                                 if (userBets.bets.length) {
@@ -107,28 +108,40 @@ router.put(
                                                         if (err) {
                                                             res.status(500).send({ error: err });
                                                         } else {
-                                                            let addData = {
-                                                                game_id: req.params.id,
-                                                                ...data.today_game_result,
-                                                                winning_amount: totalWInAmount,
-                                                            }
-                                                            gameResultApi.add(addData, function (err, resultRes) {
-                                                                if (err) {
-                                                                    res.status(500).send({ error: err });
-                                                                } else {
-                                                                    console.log(resultRes, "resultRes");
-                                                                }
-                                                            })
+                                                            userTotalWInAmount = userTotalWInAmount + totalWInAmount
                                                         }
                                                     });
                                                 }
 
                                             })
-                                            response = JSON.parse(JSON.stringify(gamesResponse));
-                                            res.status(200).send(response);
+                                            let addData = {
+                                                game_id: req.params.id,
+                                                ...data.today_game_result,
+                                                winning_amount: userTotalWInAmount,
+                                            }
+                                            gameResultApi.add(addData, function (err, resultRes) {
+                                                if (err) {
+                                                    res.status(500).send({ error: err });
+                                                } else {
+                                                    response = JSON.parse(JSON.stringify(resultRes));
+                                                    res.status(200).send(response);
+                                                }
+                                            })
+
                                         } else {
-                                            response = JSON.parse(JSON.stringify(gamesResponse));
-                                            res.status(200).send(response);
+                                            let addData = {
+                                                game_id: req.params.id,
+                                                ...data.today_game_result,
+                                                winning_amount: 0,
+                                            }
+                                            gameResultApi.add(addData, function (err, resultRes) {
+                                                if (err) {
+                                                    res.status(500).send({ error: err });
+                                                } else {
+                                                    response = JSON.parse(JSON.stringify(gamesResponse));
+                                                    res.status(200).send(response);
+                                                }
+                                            })
                                         }
                                     })
                             }
