@@ -13,6 +13,7 @@ let game_resultsSchema = new schema({
   },
   winning_bet_number: Number,
   winning_amount: Number,
+  last_user_bid: Number,
   winner_user_id: [{
     type: schema.ObjectId,
     ref: "users"

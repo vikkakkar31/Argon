@@ -515,8 +515,8 @@ router.get(
           ],
         };
       }
-      if (queryString.query && queryString.query.role) {
-        query = { ...query, role: queryString.query.role };
+      if (queryString.query && queryString.query.phone_number) {
+        query = { ...query, phone_number: queryString.query.phone_number };
       }
       userDb.count({}, (err, result) => {
         userDb.find(

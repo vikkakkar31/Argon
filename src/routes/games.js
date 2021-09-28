@@ -61,12 +61,17 @@ router.put(
                                 gameBetsapi.findAll({ createdDate: { $gte: start, $lt: end }, game_id: req.params.id },
                                     {},
                                     {},
-                                    (err, result) => {
+                                    async (err, result) => {
                                         if (result.length) {
-                                            let userTotalWInAmount = 0
-                                            result.forEach((userBets) => {
+                                            let requestWinAmountData = [];
+                                            let lastUserBid = 0;
+                                            await result.forEach(async (userBets) => {
                                                 let totalWInAmount = 0
                                                 if (userBets.bets.length) {
+                                                    userBets.bets.forEach((userCurrentBet) => {
+                                                        lastUserBid = userCurrentBet.bet_amount + lastUserBid;
+                                                    });
+
                                                     let userCurrentBets = userBets.bets.filter((bet) => {
                                                         return bet.bet_number === Number(data.today_game_result.winning_bet_number)
                                                     });
@@ -77,6 +82,9 @@ router.put(
                                                     }
                                                 }
                                                 if (userBets.inside_bets.length) {
+                                                    userBets.inside_bets.forEach((userCurrentBet) => {
+                                                        lastUserBid = userCurrentBet.bet_amount + lastUserBid;
+                                                    });
                                                     let userCurrentInBets = userBets.inside_bets.filter((bet) => {
                                                         let insdeNumber
                                                         if (data.today_game_result.winning_bet_number.toString().length === 3) {
@@ -93,6 +101,9 @@ router.put(
                                                     }
                                                 }
                                                 if (userBets.outside_bets.length) {
+                                                    userBets.outside_bets.forEach((userCurrentBet) => {
+                                                        lastUserBid = userCurrentBet.bet_amount + lastUserBid;
+                                                    });
                                                     let userCurrentOutBets = userBets.outside_bets.filter((bet) => {
                                                         let outSideNumber
                                                         if (data.today_game_result.winning_bet_number.toString().length === 3) {
@@ -109,26 +120,35 @@ router.put(
                                                     }
                                                 }
                                                 if (totalWInAmount) {
-                                                    let requestWinAmountData = {
+                                                    requestWinAmountData.push({
                                                         "wallet_id": userBets.wallet_id,
                                                         "amount": totalWInAmount,
                                                         "transaction_type": "credit",
                                                         "transaction_mode": "win"
-                                                    }
-                                                    transactionApi.add(requestWinAmountData, function (err, response) {
-                                                        if (err) {
-                                                            res.status(500).send({ error: err });
-                                                        } else {
-                                                            userTotalWInAmount = userTotalWInAmount + totalWInAmount
-                                                        }
-                                                    });
+                                                    })
                                                 }
 
                                             })
+                                            let userTotalWInAmount = 0;
+                                            for (const element of requestWinAmountData) {
+                                                let result = await new Promise((resolve, reject) => {
+                                                    transactionApi.add(element, function (err, response) {
+                                                        if (err) {
+                                                            reject({ error: err });
+                                                        } else {
+                                                            userTotalWInAmount = Number(userTotalWInAmount + Number(element.amount));
+                                                            resolve(response)
+                                                        }
+                                                    });;
+                                                })
+                                                console.log(result)
+                                            }
+
                                             let addData = {
                                                 game_id: req.params.id,
                                                 ...data.today_game_result,
                                                 winning_amount: userTotalWInAmount,
+                                                last_user_bid: lastUserBid
                                             }
                                             gameResultApi.add(addData, function (err, resultRes) {
                                                 if (err) {
